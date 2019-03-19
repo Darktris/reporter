@@ -86,7 +86,7 @@ func (g client) GetDashboard(dashName string) (Dashboard, error) {
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", dashURL, nil)
-	req.Header.Add("X-WEBAUTH-USERh", "admin")
+	req.Header.Add("X-WEBAUTH-USER", "admin")
 	if err != nil {
 		return Dashboard{}, fmt.Errorf("error creating getDashboard request for %v: %v", dashURL, err)
 	}
@@ -119,7 +119,7 @@ func (g client) GetPanelPng(p Panel, dashName string, t TimeRange) (io.ReadClose
 		return errors.New("Error getting panel png. Redirected to login")
 	}}
 	req, err := http.NewRequest("GET", panelURL, nil)
-	req.Header.Add("X-WEBAUTH-USERh", "admin")
+	req.Header.Add("X-WEBAUTH-USER", "admin")
 
 	if err != nil {
 		return nil, fmt.Errorf("error creating getPanelPng request for %v: %v", panelURL, err)
