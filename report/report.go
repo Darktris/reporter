@@ -162,6 +162,31 @@ func (rep *report) renderPNGsParallel(dash grafana.Dashboard) error {
 	return nil
 }
 
+func copy(src, dst string) (int64, error) {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return 0, err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
+	return nBytes, err
+}
+
 func (rep *report) renderPNG(p grafana.Panel) error {
 	body, err := rep.gClient.GetPanelPng(p, rep.dashName, rep.time)
 	if err != nil {
@@ -172,22 +197,11 @@ func (rep *report) renderPNG(p grafana.Panel) error {
 			return fmt.Errorf("error creating img directory:%v", err)
 		}
 		imgFileName := fmt.Sprintf("image%d.png", p.Id)
-		file, err := os.Create(filepath.Join(rep.imgDirPath(), imgFileName))
+		_, err := copy("white.png", filepath.Join(rep.imgDirPath(), imgFileName))
 		if err != nil {
-			return fmt.Errorf("error creating image file:%v", err)
+			return fmt.Errorf("error copying image file:%v", err)
 		}
-		defer file.Close()
 
-		source, err := os.Open("white.png")
-		if err != nil {
-			return 0, err
-		}
-		defer source.Close()
-
-		_, err = io.WriteString(file, source)
-		if err != nil {
-			return fmt.Errorf("error copying body to file:%v", err)
-		}
 		return nil
 	}
 	defer body.Close()
