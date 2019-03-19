@@ -166,7 +166,7 @@ func (rep *report) renderPNG(p grafana.Panel) error {
 	body, err := rep.gClient.GetPanelPng(p, rep.dashName, rep.time)
 	if err != nil {
 		//return fmt.Errorf("error getting panel %+v: %v", p, err)
-
+		err = nil
 		err = os.MkdirAll(rep.imgDirPath(), 0777)
 		if err != nil {
 			return fmt.Errorf("error creating img directory:%v", err)
@@ -177,8 +177,14 @@ func (rep *report) renderPNG(p grafana.Panel) error {
 			return fmt.Errorf("error creating image file:%v", err)
 		}
 		defer file.Close()
-		whiteImage := "iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAIAAAAiOjnJAAAABGdBTUEAALGPC/xhBQAABDBJREFUeF7t1bERACEMxEDov2j/04MVSRRwgWbH3Jk5vQqsF/hh9SqwXuCsLzZYgfcNVqECRIFgEVXb7GJlgCnQxWK66leDpSfABAgW01W/Giw9ASZAsJiu+tVg6QkwAYLFdNWvBktPgAkQLKarfjVYegJMgGAxXfWrwdITYAIEi+mqXw2WngATIFhMV/1qsPQEmADBYrrqV4OlJ8AECBbTVb8aLD0BJkCwmK761WDpCTABgsV01a8GS0+ACRAspqt+NVh6AkyAYDFd9avB0hNgAgSL6apfDZaeABMgWExX/Wqw9ASYAMFiuupXg6UnwAQIFtNVvxosPQEmQLCYrvrVYOkJMAGCxXTVrwZLT4AJECymq341WHoCTIBgMV31q8HSE2ACBIvpql8Nlp4AEyBYTFf9arD0BJgAwWK66leDpSfABAgW01W/Giw9ASZAsJiu+tVg6QkwAYLFdNWvBktPgAkQLKarfjVYegJMgGAxXfWrwdITYAIEi+mqXw2WngATIFhMV/1qsPQEmADBYrrqV4OlJ8AECBbTVb8aLD0BJkCwmK761WDpCTABgsV01a8GS0+ACRAspqt+NVh6AkyAYDFd9avB0hNgAgSL6apfDZaeABMgWExX/Wqw9ASYAMFiuupXg6UnwAQIFtNVvxosPQEmQLCYrvrVYOkJMAGCxXTVrwZLT4AJECymq341WHoCTIBgMV31q8HSE2ACBIvpql8Nlp4AEyBYTFf9arD0BJgAwWK66leDpSfABAgW01W/Giw9ASZAsJiu+tVg6QkwAYLFdNWvBktPgAkQLKarfjVYegJMgGAxXfWrwdITYAIEi+mqXw2WngATIFhMV/1qsPQEmADBYrrqV4OlJ8AECBbTVb8aLD0BJkCwmK761WDpCTABgsV01a8GS0+ACRAspqt+NVh6AkyAYDFd9avB0hNgAgSL6apfDZaeABMgWExX/Wqw9ASYAMFiuupXg6UnwAQIFtNVvxosPQEmQLCYrvrVYOkJMAGCxXTVrwZLT4AJECymq341WHoCTIBgMV31q8HSE2ACBIvpql8Nlp4AEyBYTFf9arD0BJgAwWK66leDpSfABAgW01W/Giw9ASZAsJiu+tVg6QkwAYLFdNWvBktPgAkQLKarfjVYegJMgGAxXfWrwdITYAIEi+mqXw2WngATIFhMV/1qsPQEmADBYrrqV4OlJ8AECBbTVb8aLD0BJkCwmK761WDpCTABgsV01a8GS0+ACRAspqt+NVh6AkyAYDFd9avB0hNgAgSL6apfDZaeABMgWExX/Wqw9ASYAMFiuupXg6UnwAQIFtNVvxosPQEmQLCYrvrVYOkJMAGCxXTVrwZLT4AJECymq341WHoCTIBgMV31q8HSE2ACBIvpql8Nlp4AEyBYTFf9arD0BJgAwWK66leDpSfABPgAKXOzx1khoKwAAAAASUVORK5CYII="
-		_, err = io.WriteString(file, whiteImage)
+
+		source, err := os.Open("white.png")
+		if err != nil {
+			return 0, err
+		}
+		defer source.Close()
+
+		_, err = io.WriteString(file, source)
 		if err != nil {
 			return fmt.Errorf("error copying body to file:%v", err)
 		}
